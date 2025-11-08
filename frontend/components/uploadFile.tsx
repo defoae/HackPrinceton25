@@ -7,25 +7,32 @@ export default function UploadFile() {
         console.log("Successfully dropped files:", acceptedFiles);
 
         // Processing file:
-        // const file = acceptedFiles[0]; // This really shouldn't be an array but the component had too much built in functionality for array and i got lazy
-        // const formData = new FormData();
-        // formData.append("file", file);
+        const file = acceptedFiles[0]; // This really shouldn't be an array but the component had too much built in functionality for array and i got lazy
+        if (!file) {
+            console.error("No file found in the dropped files.");
+            alert("No file found. Please try again.");
+            return;
+        }
 
-        // try {
-        //     const response = await fetch("/api/upload", {
-        //         method: "POST",
-        //         body: formData,
-        //     });
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const processRequest = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            });
             
-        //     if (!response.ok) {
-        //         throw new Error(`HTTP error! status: ${response.status}`);
-        //     }
+            if (processRequest.ok) {
+                const processRequestJsonData = await processRequest.json();
+                let processUrl = processRequestJsonData["process_url"];
+                console.log("Process URL:", processUrl);
+                alert("File uploaded and successfully sent to Flask backend");
+            }
 
-        //     const data = await response.json();
-        //     console.log("Server response:", data);
-        // } catch (error) {
-        //     console.error("Error posting to API endpoint:", error);
-        // }
+        } catch (error) {
+            console.error("Error posting to API endpoint:", error);
+        }
 
 
     };

@@ -19,5 +19,9 @@ export default function Home() {
     </div>
     // < Loading />
 
+    <>
+    < ScrollingVideos />
+    < UploadFile />
+    </>
   );
 }

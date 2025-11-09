@@ -1,0 +1,51 @@
+{
+  "manifest_version": 2,
+  "name": "SlopGuard",
+  "description": "We help you detect your daily brainrot.",
+  "version": "1.0.0",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "*://www.instagram.com/*",
+    "*://instagram.com/*",
+    "*://*.cdninstagram.com/*"
+  ],
+  "background": {
+    "scripts": ["config.js", "storage.js", "background.js"],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://www.instagram.com/*",
+        "*://instagram.com/*"
+      ],
+      "js": ["config.js", "src/js/global/utils.js", "src/js/global/event.js", "src/js/global/home-scroll-handler.js", "src/js/global/post-modal-view-handler.js", "src/js/global/stories-view-handler.js", "src/js/global/reels-scroll-handler.js", "src/js/main.js", "src/js/utils.js", "src/js/post.js", "src/js/story.js", "storage.js", "content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "browser_action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "SlopGuard",
+    "default_popup": "popup.html"
+  },
+  "web_accessible_resources": [
+    "config.js",
+    "injected-script.js",
+    "src/js/global/utils.js",
+    "src/js/global/event.js",
+    "src/js/global/home-scroll-handler.js",
+    "src/js/global/post-modal-view-handler.js",
+    "src/js/global/stories-view-handler.js",
+    "src/js/global/reels-scroll-handler.js"
+  ]
+}

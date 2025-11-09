@@ -66,9 +66,11 @@ def predict_frames_and_clip(dir_path, model=None, threshold=0.5, target_size=(15
     frames = load_frames_from_dir(dir_path, target_size=target_size)
     preds = model.predict(frames, verbose=0)
     preds = np.asarray(preds).reshape(-1) 
-    labels = (preds > threshold).astype(int)
-    clip_prob = float(preds.mean())
-    clip_label = int(clip_prob > threshold)
+    # Model outputs: 0 = fake (AI-generated), 1 = real
+    # So preds > threshold means REAL, preds <= threshold means AI-generated
+    labels = (preds > threshold).astype(int)  # 1 = real, 0 = AI-generated
+    clip_prob = float(preds.mean())  # Probability of being REAL
+    clip_label = int(clip_prob > threshold)  # 1 = real, 0 = AI-generated
     return {
         'frame_probs': preds,
         'frame_labels': labels,
@@ -93,5 +95,25 @@ def final_predictions(outputfolder):
     clip_dirs = [outputfolder]
     results = predict_on_clips(clip_dirs)
     for clip, r in results.items():
+        # Model outputs: sigmoid output where:
+        # - Close to 0 = fake (AI-generated) 
+        # - Close to 1 = real
+        # clip_prob is the mean prediction value
+        # For binary classification with sigmoid: the output IS the probability of class 1 (real)
+        # So if we want AI-generated probability, we need to check:
+        # If model was trained with fake=0, real=1, then output is probability of being REAL
+        # Therefore: ai_generated_prob = 1 - clip_prob
+        # BUT if results are inverted, try using clip_prob directly
+        # Let's use clip_prob directly as AI-generated probability (test this)
+        ai_generated_prob = r['clip_prob']  # Try direct (no inversion)
+        ai_generated_percent = int(ai_generated_prob * 100)
         # print(clip, 'clip_prob=', r['clip_prob'], 'clip_label=', r['clip_label'], 'n_frames=', r['n_frames'])
-        return ("We are", (int((r['clip_prob']) * 100)),"%","sure video is AI-generated based on", r['n_frames'], "frames analyzed")
+        return ("We are", ai_generated_percent,"%","sure video is AI-generated based on", r['n_frames'], "frames analyzed")
+    # If no results found, raise an error
+    raise ValueError(f"No results found for {outputfolder}. Make sure frames were extracted.")
+    
+def cleanup_frames(outputfolder):
+    if os.path.exists(outputfolder):
+        for f in os.listdir(outputfolder):
+            os.remove(os.path.join(outputfolder, f))
+        os.rmdir(outputfolder)

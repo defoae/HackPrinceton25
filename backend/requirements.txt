@@ -21,6 +21,7 @@ exceptiongroup
 executing               
 filelock                
 Flask                   
+flask-cors              
 flatbuffers             
 fonttools               
 fsspec                  

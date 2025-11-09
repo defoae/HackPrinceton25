@@ -33,15 +33,14 @@ export default function UploadFile({
 
       if (processRequest.ok) {
         const processRequestJsonData = await processRequest.json();
-        let processUrl = processRequestJsonData["process_url"];
-        console.log("Process URL:", processUrl);
-        alert("File uploaded and successfully sent to Flask backend");
+        console.log("Upload successful:", processRequestJsonData);
 
-        // 🔹 Tell parent upload finished
+        // 🔹 Tell parent upload finished (will transition to loading, then results)
         onUploadComplete?.();
       } else {
-        console.error("Upload failed");
-        alert("Failed to upload. Please try again.");
+        const errorData = await processRequest.json().catch(() => ({}));
+        console.error("Upload failed:", errorData);
+        alert(errorData.error || "Failed to upload. Please try again.");
       }
     } catch (error) {
       console.error("Error posting to API endpoint:", error);
@@ -54,7 +53,7 @@ export default function UploadFile({
       <Dropzone
         accept={{ "video/mp4": [] }}
         maxFiles={1}
-        maxSize={5 * 1024 * 1024} // 5 MB
+        maxSize={100 * 1024 * 1024} // 100 MB
         onDrop={handleDrop}
       >
         <DropzoneEmptyState />
